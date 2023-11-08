@@ -1,19 +1,7 @@
-menu "Component app_socket Configuration"
+menu "Component app_socket_stdio Configuration"
 
-    config APP_SOCKET_UART_USE_RFC2217
-        bool "Use RFC2217"
-        default n
-    config APP_SOCKET_UART_USE_REDIRECT_UART_VIA_TCP_SOCKET
-        bool "Redirect UART via TCP"
-        default n
-    config APP_SOCKET_UDP_USE
-        bool "Use UDP/BOOTP Sockets"
-        default n
-    config APP_SOCKET_LOG_USE
-        bool "Use LOG Socket"
-        default n
     config APP_SOCKET_STDIO_USE
-        bool "Use stdio Socket"
+        bool "Use app socket stdio  (application socket stdio)"
         default y
     
 endmenu

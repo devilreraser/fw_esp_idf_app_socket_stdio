@@ -13,7 +13,6 @@
  **************************************************************************** */
 #include "app_socket_stdio.h"
 
-#if CONFIG_APP_SOCKET_STDIO_USE
 
 #include <string.h>
 #include <stdint.h>
@@ -56,19 +55,8 @@
  * Variables Definitions
  **************************************************************************** */
 
-#if CONFIG_SYSTEM_USE_STREAM_BUFFER
 StreamBufferHandle_t stdio_stream_buffer_send = NULL;
 StreamBufferHandle_t stdio_stream_buffer_recv = NULL;
-#else
-drv_stream_t stdio_stream_recv = 
-{
-    "rx_stdio", NULL, 0, false, NULL, APP_SOCKET_STDIO_RECV_BUFFER_SIZE,
-};
-drv_stream_t stdio_stream_send = 
-{
-    "tx_stdio", NULL, 0, false, NULL, APP_SOCKET_STDIO_SEND_BUFFER_SIZE,
-};
-#endif
 
 drv_socket_t socket_stdio = 
 {
@@ -77,10 +65,10 @@ drv_socket_t socket_stdio =
     .nSocketConnectionsCount = 0,
     .nSocketIndexPrimer = {-1},
     .nSocketIndexServer = -1,
-    .cHostIP = DRV_SOCKET_DEFAULT_IP,
     .cURL = DRV_SOCKET_DEFAULT_URL,
+    .cHostIP = DRV_SOCKET_DEFAULT_IP,
     //.cHostIP = "84.40.115.3",
-    //.cHostIP = "192.168.3.118",
+    //.cHostIP = "192.168.3.2",
     //.cHostIP = "192.168.0.1",
     .u16Port = 3333,
     //.u16Port = 3336,
@@ -110,13 +98,8 @@ drv_socket_t socket_stdio =
     .address_family = AF_INET,
     .protocol = IPPROTO_IP,
     .protocol_type = SOCK_STREAM,
-#if CONFIG_SYSTEM_USE_STREAM_BUFFER
     .pSendStreamBuffer = {&stdio_stream_buffer_send},
     .pRecvStreamBuffer = {&stdio_stream_buffer_recv},
-#else
-    .pSendStream = {&stdio_stream_send},
-    .pRecvStream = {&stdio_stream_recv},
-#endif
 };
 
 /* *****************************************************************************
@@ -129,13 +112,8 @@ drv_socket_t socket_stdio =
 
 void app_socket_stdio_init(void)
 {
-    #if CONFIG_SYSTEM_USE_STREAM_BUFFER
-    drv_stream_buffer_init(socket_stdio.pSendStreamBuffer[0], APP_SOCKET_STDIO_SEND_BUFFER_SIZE, "stdio_sock_send");
-    drv_stream_buffer_init(socket_stdio.pRecvStreamBuffer[0], APP_SOCKET_STDIO_RECV_BUFFER_SIZE, "stdio_sock_recv");
-    #else
-    drv_stream_init(socket_stdio.pSendStream[0], NULL, 0);
-    drv_stream_init(socket_stdio.pRecvStream[0], NULL, 0);
-    #endif
+    drv_stream_init(socket_stdio.pSendStreamBuffer[0], APP_SOCKET_STDIO_SEND_BUFFER_SIZE, "stdio_sock_send");
+    drv_stream_init(socket_stdio.pRecvStreamBuffer[0], APP_SOCKET_STDIO_RECV_BUFFER_SIZE, "stdio_sock_recv");
 }
 
 void app_socket_stdio_task(void)
@@ -150,16 +128,7 @@ int app_socket_stdio_send(const char* pData, int size)
         //ESP_LOGI(TAG, "app_socket_stdio_send %d bytes", size);    esp log here not permitted
         //ESP_LOG_BUFFER_CHAR(TAG, pData, size);
         
-
-        #if CONFIG_SYSTEM_USE_STREAM_BUFFER
-        return drv_stream_buffer_push(socket_stdio.pSendStreamBuffer[0], (uint8_t*)pData, size);
-        #else
-        return drv_stream_push(socket_stdio.pSendStream[0], (uint8_t*)pData, size);
-        #endif
-
-
-
-
+        return drv_stream_push(socket_stdio.pSendStreamBuffer[0], (uint8_t*)pData, size);
     }
     else
     {
@@ -173,11 +142,7 @@ int app_socket_stdio_recv(char* pData, int size)
     {
         //ESP_LOGI(TAG, "app_socket_stdio_recv %d bytes", size);
         //ESP_LOG_BUFFER_CHAR(TAG, pData, size);
-        #if CONFIG_SYSTEM_USE_STREAM_BUFFER
-        return drv_stream_buffer_pull(socket_stdio.pRecvStreamBuffer[0], (uint8_t*)pData, size);
-        #else
-        return drv_stream_pull(socket_stdio.pRecvStream[0], (uint8_t*)pData, size); 
-        #endif
+        return drv_stream_pull(socket_stdio.pRecvStreamBuffer[0], (uint8_t*)pData, size);
         //return 0; 
     }
     else
@@ -185,5 +150,3 @@ int app_socket_stdio_recv(char* pData, int size)
         return 0;
     }
 }
-
-#endif //#if CONFIG_APP_SOCKET_STDIO_USE

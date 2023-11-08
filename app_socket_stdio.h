@@ -14,9 +14,6 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-#include <sdkconfig.h>
-#if CONFIG_APP_SOCKET_STDIO_USE
-
 /* *****************************************************************************
  * Header Includes
  **************************************************************************** */
@@ -54,8 +51,6 @@ void app_socket_stdio_init(void);
 void app_socket_stdio_task(void);
 int app_socket_stdio_send(const char* pData, int size);
 int app_socket_stdio_recv(char* pData, int size);
-
-#endif //#if CONFIG_APP_SOCKET_STDIO_USE
 
 #ifdef __cplusplus
 }
